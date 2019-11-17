@@ -1,9 +1,15 @@
 #![feature(rustc_private)]
 
+extern crate rustc_data_structures;
+extern crate rustc_target;
 extern crate serialize as rustc_serialize;
+extern crate rustc;
 
 use rustc_serialize::opaque::Decoder;
 use rustc_serialize::Decodable;
+use rustc_target::spec::{PanicStrategy, TargetTriple};
+use rustc::session::CrateDisambiguator;
+use rustc_data_structures::svh::Svh;
 
 const METADATA_VERSION: u8 = 5;
 const METADATA_HEADER: &[u8; 8] = &[b'r', b'u', b's', b't', 0, 0, 0, METADATA_VERSION];
@@ -13,7 +19,12 @@ use byteorder::{BigEndian, ReadBytesExt};
 
 #[derive(RustcEncodable, RustcDecodable, Debug)]
 struct CrateRoot {
-    name: String
+    name: String,
+    target_triple: TargetTriple,
+    extra_filename: String,
+    hash: Svh,
+    disambiguator: CrateDisambiguator,
+    pub panic_strategy: PanicStrategy,
 }
 
 struct RawMetadata {
